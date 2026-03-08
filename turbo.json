@@ -1,0 +1,40 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": [
+        ".next/**",
+        "!.next/cache/**",
+        ".mastra/**",
+        "dist/**"
+      ],
+      "inputs": ["$TURBO_DEFAULT$", ".env", ".env.*"],
+      "env": [
+        "NODE_ENV",
+        "OPENAI_API_KEY",
+        "TURSO_DATABASE_URL",
+        "TURSO_AUTH_TOKEN",
+        "MASTRA_API_URL",
+        "NEXT_PUBLIC_*"
+      ]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "web#dev": {
+      "dependsOn": [],
+      "with": ["api#dev"],
+      "cache": false,
+      "persistent": true
+    },
+    "lint": {
+      "dependsOn": ["^build"]
+    },
+    "deploy": {
+      "dependsOn": ["^build"],
+      "cache": false
+    }
+  }
+}

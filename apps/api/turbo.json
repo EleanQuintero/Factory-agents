@@ -1,0 +1,20 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "outputs": [".mastra/**"],
+      "env": [
+        "OPENAI_API_KEY",
+        "TURSO_DATABASE_URL",
+        "TURSO_AUTH_TOKEN",
+        "CLOUDFLARE_API_TOKEN"
+      ]
+    },
+    "deploy": {
+      "dependsOn": ["build"],
+      "cache": false,
+      "env": ["CLOUDFLARE_API_TOKEN"]
+    }
+  }
+}
