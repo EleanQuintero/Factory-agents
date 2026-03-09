@@ -8,7 +8,7 @@ const THREAD_ID = 'example-user-id'
 export async function POST(req: Request) {
     const params = await req.json()
 
-    const response = await fetch(`${process.env.MASTRA_API_URL}/chat/weather`, {
+    const response = await fetch(`${process.env.MASTRA_API_URL}/chat/search`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -16,7 +16,7 @@ export async function POST(req: Request) {
         body: JSON.stringify({
             ...params,
             threadId: THREAD_ID,
-            resourceId: 'weather-chat',
+            resourceId: 'search-chat',
         }),
     })
 
@@ -26,7 +26,7 @@ export async function POST(req: Request) {
 export async function GET() {
     let messages: UIMessage[] = []
     try {
-        const thread = mastraClient.getMemoryThread({ threadId: THREAD_ID, agentId: 'weather-agent' })
+        const thread = mastraClient.getMemoryThread({ threadId: THREAD_ID, agentId: 'search-agent' })
         const { messages: threadMessages } = await thread.listMessages()
         messages = toAISdkV5Messages(threadMessages || [])
     } catch {
