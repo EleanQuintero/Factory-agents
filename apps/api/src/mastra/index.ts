@@ -6,23 +6,27 @@ import { CloudExporter, DefaultExporter, Observability, SensitiveDataFilter } fr
 
 import { weatherAgent } from './agents/weather-agent';
 import { weatherWorkflow } from './workflows/weather-workflow';
+import store from './storage/pgsql';
+import { notionAgent } from './agents/notion-agent';
+import { searchAgent } from './agents/search-agent';
 
 export const mastra = new Mastra({
   workflows: { weatherWorkflow },
-  agents: { weatherAgent },
+  agents: { weatherAgent, searchAgent },
   server: {
     apiRoutes: [
       chatRoute({
         path: '/chat/weather',
         agent: 'weather-agent',
       }),
+      chatRoute({
+        path: '/chat/search',
+        agent: 'search-agent',
+      }),
     ],
   },
-  storage: new LibSQLStore({
-    id: "mastra-storage",
-    // stores observability, scores, ... into persistent file storage
-    url: "file:./mastra.db",
-  }),
+  storage: store
+  ,
   logger: new PinoLogger({
     name: 'Mastra',
     level: 'info',
