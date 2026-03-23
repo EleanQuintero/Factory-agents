@@ -88,3 +88,11 @@ Skills are automatically available to agents in your project once installed. Age
 
 - [Mastra Documentation](https://mastra.ai/llms.txt)
 - [Mastra .well-known skills discovery](https://mastra.ai/.well-known/skills/index.json)
+
+## SDD-WORKFLOW
+
+When the user wants to create a new feature or change, use the SDD workflow.
+
+You must use SDD WORKFLOW with SUB-AGENTS. NON NEGOTIABLE 
+
+You must LOAD the SDD WORKFLOW FROM - [SDD-WORKFLOW.MD] (./SDD-WORKFLOW.MD) NON NEGOTIABLE
