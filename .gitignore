@@ -53,3 +53,16 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# openspec
+.openspec
+
+# claude code local config
+.agents/
+.claude/
+skills-lock.json
+
+# markdown (except agent/claude docs)
+*.md
+!CLAUDE.md
+!AGENTS.md
