@@ -1,23 +1,25 @@
 schema: spec-driven
 
 context: |
-  Tech stack: Next.js 16.1.6, React 19.2.3, Mastra AI Framework, TypeScript 5, Tailwind CSS 4, pnpm
-  Architecture: Monolith Next.js + Mastra → Migrating to Turborepo monorepo (apps/api + apps/web + packages/mastra-client)
+  Tech stack: Mastra AI Framework v1.10.0, TypeScript 5, Next.js 16, React 19, Tailwind CSS 4, Zod 4, pnpm
+  Architecture: Turborepo monorepo (apps/api, apps/web, packages/mastra-client)
+  Agents: Weather (gemini-2.5-flash-lite), Search (gemini-2.5-flash via MCP), Notion (broken, needs rebuild)
   Testing: None configured yet
   Style: ESLint (eslint-config-next), Tailwind CSS 4 with PostCSS
-  Database: LibSQL (mastra.db) for Mastra storage
-  Critical paths: src/mastra/ (agents, tools, workflows), src/app/ (Next.js routes), src/components/ (UI)
+  Database: PostgreSQL via @mastra/pg for Mastra storage
+  Critical paths: apps/api/src/mastra/ (agents, tools, workflows, mcp, storage)
 
 project_guidelines:
   source: "CLAUDE.md"
   critical_paths:
-    - "src/mastra/" # Mastra agents, tools, workflows
-    - "src/app/" # Next.js app router pages and API routes
-    - "src/components/" # UI components (shadcn + ai-elements)
-    - "src/lib/" # Utilities
+    - "apps/api/src/mastra/" # Mastra agents, tools, workflows, storage
+    - "apps/web/src/" # Next.js frontend
+    - "packages/mastra-client/" # Shared client package
   code_practices:
     - "Load Mastra skill before any Mastra work"
     - "Follow Mastra conventions for agents/tools/workflows"
+    - "Use supervisor pattern (not .network()) for multi-agent coordination"
+    - "NO ZodIntersection types — Gemini models reject them"
   build_rules:
     - "Use pnpm as package manager"
     - "Turborepo for monorepo orchestration"
