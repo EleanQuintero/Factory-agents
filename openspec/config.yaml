@@ -1,9 +1,10 @@
 schema: spec-driven
 
 context: |
-  Tech stack: Mastra AI Framework v1.10.0, TypeScript 5, Next.js 16, React 19, Tailwind CSS 4, Zod 4, pnpm
+  Tech stack: Mastra AI Framework v1.15.0, TypeScript 5, Next.js 16, React 19, Tailwind CSS 4, Zod 4, pnpm
   Architecture: Turborepo monorepo (apps/api, apps/web, packages/mastra-client)
-  Agents: Weather (gemini-2.5-flash-lite), Search (gemini-2.5-flash via MCP), Notion (broken, needs rebuild)
+  Agents: Weather (gemini-2.5-flash-lite), Search (gemini-2.5-flash via Tavily MCP), Notion orchestrator (multi-agent, gemini-2.5-flash)
+  Integrations: @composio/core 0.6.6 + @composio/mastra 0.6.6 (installed, not yet used)
   Testing: None configured yet
   Style: ESLint (eslint-config-next), Tailwind CSS 4 with PostCSS
   Database: PostgreSQL via @mastra/pg for Mastra storage
