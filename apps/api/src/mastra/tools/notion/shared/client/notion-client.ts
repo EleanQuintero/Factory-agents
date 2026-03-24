@@ -1,7 +1,7 @@
 import { type HttpMethod, type INotionClient, NotionAPIError } from './types';
 
 const BASE_URL = 'https://api.notion.com';
-const API_VERSION = '2025-09-03';
+const API_VERSION = '2022-06-28';
 const MAX_RETRIES = 3;
 const BASE_DELAY_MS = 1000;
 

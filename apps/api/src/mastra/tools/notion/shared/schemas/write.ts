@@ -12,16 +12,16 @@ export const createPageInputSchema = z.object({
     .optional()
     .describe('Title for the new page (used as the title property)'),
   properties: z
-    .record(z.string(), z.any())
+    .record(z.string(), z.unknown())
     .optional()
     .describe(
       'Page properties as a JSON object. For database rows, keys are property names and values follow the Notion property value format.',
     ),
   children: z
-    .string()
+    .array(z.record(z.string(), z.unknown()))
     .optional()
     .describe(
-      'JSON string of an array of block objects to add as page content. Max 100 blocks per request.',
+      'Array of Notion block objects to add as page content. Max 100 blocks per request.',
     ),
   icon_emoji: z
     .string()
@@ -41,7 +41,7 @@ export const updatePageInputSchema = z.object({
     .optional()
     .describe('Emoji character to set as the page icon'),
   properties: z
-    .record(z.string(), z.any())
+    .record(z.string(), z.unknown())
     .optional()
     .describe(
       'Page properties to update as a JSON object. Keys are property names and values follow the Notion property value format.',
@@ -54,9 +54,9 @@ export const appendBlocksInputSchema = z.object({
     'The ID of the page or block to append children to',
   ),
   children: z
-    .string()
+    .array(z.record(z.string(), z.unknown()))
     .describe(
-      'JSON string of an array of block objects to append. Max 100 blocks per request.',
+      'Array of Notion block objects to append. Max 100 blocks per request.',
     ),
 });
 
