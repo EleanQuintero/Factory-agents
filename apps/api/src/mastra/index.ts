@@ -8,11 +8,14 @@ import { weatherAgent } from './agents/weather-agent';
 import { weatherWorkflow } from './workflows/weather-workflow';
 import store from './storage/pgsql';
 import { searchAgent } from './agents/search-agent';
-import { notionOrchestrator } from './agents/notion';
+import { notionOrchestrator, notionSearchAgent, notionWriteAgent, notionDatabaseAgent } from './agents/notion';
+import { japaneseSenseiOrchestrator } from './agents/japanese-sensei';
+import { workspace } from './workspace';
 
 export const mastra = new Mastra({
   workflows: { weatherWorkflow },
-  agents: { weatherAgent, searchAgent, notionOrchestrator },
+  agents: { weatherAgent, searchAgent, notionOrchestrator, notionSearchAgent, notionWriteAgent, notionDatabaseAgent, japaneseSenseiOrchestrator },
+  workspace,
   server: {
     apiRoutes: [
       chatRoute({
@@ -26,6 +29,10 @@ export const mastra = new Mastra({
       chatRoute({
         path: '/chat/notion',
         agent: 'notion-orchestrator',
+      }),
+      chatRoute({
+        path: '/chat/japanese',
+        agent: 'japanese-sensei',
       }),
     ],
   },

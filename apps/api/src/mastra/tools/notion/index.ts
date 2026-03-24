@@ -24,5 +24,4 @@ export {
   queryDatabase,
   createDatabase,
   updateDatabase,
-  createDataSource,
 } from './database';

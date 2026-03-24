@@ -27,5 +27,4 @@ export {
   queryDatabaseInputSchema,
   createDatabaseInputSchema,
   updateDatabaseInputSchema,
-  createDataSourceInputSchema,
 } from './database';

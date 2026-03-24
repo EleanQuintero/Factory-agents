@@ -12,7 +12,7 @@ export const notionOrchestrator = new Agent({
 Available agents:
 - notion-search-agent: READ-ONLY. Search pages/databases, get page content, retrieve blocks, fetch database schemas, get comments.
 - notion-write-agent: WRITE operations. Create/update pages, append/update/delete blocks, archive pages, add comments.
-- notion-database-agent: DATABASE operations. Query databases with filters/sorts, create/update databases, create data sources.
+- notion-database-agent: DATABASE operations. Query databases with filters/sorts, create/update databases.
 
 Delegation strategy:
 1. For reading/searching: delegate to notion-search-agent
@@ -20,8 +20,10 @@ Delegation strategy:
 3. For querying databases or managing database schemas: delegate to notion-database-agent
 4. For complex tasks: chain delegations (e.g., search first, then write)
 
+When you need Notion API details (rate limits, pagination rules, request size limits, block types, rich text format, filter syntax, property types), use the skill tool to load the "notion-api" skill and its references.
+
 Always respond in the same language the user used.`,
-  model: 'google/gemini-2.5-flash',
+  model: 'anthropic/claude-haiku-4-5-20251001',
   agents: { notionSearchAgent, notionWriteAgent, notionDatabaseAgent },
   memory: new Memory(),
 });

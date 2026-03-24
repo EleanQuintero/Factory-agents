@@ -5,13 +5,13 @@ import { notionId } from './common';
 export const queryDatabaseInputSchema = z.object({
   database_id: notionId.describe('The ID of the database to query'),
   filter: z
-    .record(z.string(), z.any())
+    .record(z.string(), z.unknown())
     .optional()
     .describe(
       'Filter object following the Notion filter format. Example: { "property": "Status", "select": { "equals": "Done" } }',
     ),
   sorts: z
-    .array(z.record(z.string(), z.any()))
+    .array(z.record(z.string(), z.unknown()))
     .optional()
     .describe(
       'Array of sort objects. Example: [{ "property": "Created", "direction": "descending" }]',
@@ -35,7 +35,7 @@ export const createDatabaseInputSchema = z.object({
     .string()
     .describe('Title for the new database'),
   properties: z
-    .record(z.string(), z.any())
+    .record(z.string(), z.unknown())
     .describe(
       'Database property schema as a JSON object. Keys are property names, values are property configurations. Example: { "Name": { "title": {} }, "Status": { "select": { "options": [{ "name": "To Do" }] } } }',
     ),
@@ -57,7 +57,7 @@ export const updateDatabaseInputSchema = z.object({
     .optional()
     .describe('New description for the database'),
   properties: z
-    .record(z.string(), z.any())
+    .record(z.string(), z.unknown())
     .optional()
     .describe(
       'Database property schema updates as a JSON object. Keys are property names, values are property configurations.',
@@ -73,7 +73,7 @@ export const createDataSourceInputSchema = z.object({
     .string()
     .describe('Title for the new data source'),
   properties: z
-    .record(z.string(), z.any())
+    .record(z.string(), z.unknown())
     .describe(
       'Data source property schema as a JSON object. Keys are property names, values are property configurations.',
     ),

@@ -8,6 +8,7 @@
     "deploy": "mastra build && cd .mastra/output && wrangler deploy"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^3.0.63",
     "@composio/core": "0.6.6",
     "@composio/mastra": "0.6.6",
     "@mastra/ai-sdk": "1.2.0",
