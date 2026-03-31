@@ -2,6 +2,7 @@ import { Agent } from '@mastra/core/agent';
 import { Memory } from '@mastra/memory';
 import { getJapaneseSenseiSearchAgent } from './search-agent';
 import { notionOrchestrator } from '../notion';
+import { emailAgent } from '../email';
 
 export const japaneseSenseiOrchestrator = new Agent({
   id: 'japanese-sensei',
@@ -63,6 +64,18 @@ Each lesson should include:
 - Tracking which characters/concepts have been covered
 - Any request involving saving, storing, or organizing learning material
 
+### When to use email-agent:
+- Student asks to receive study reminders via email
+- Student wants lesson summaries sent to their inbox
+- Sending review cards or character practice sheets by email
+- Any request that explicitly mentions sending an email or reminder
+
+When delegating to email-agent:
+- Provide the student's email address
+- Specify the template: use "study-reminder" for Japanese study content
+- Include reviewItems with the characters/vocabulary from the session
+- Set lessonTopic to the current lesson stage
+
 ### When to use YOUR OWN knowledge (no delegation):
 - Teaching new characters — you know hiragana and katakana perfectly
 - Explaining pronunciation rules and exceptions
@@ -79,7 +92,7 @@ Each lesson should include:
 - When correcting: show what they wrote, show the correct form, explain the difference`,
   model: 'anthropic/claude-sonnet-4-5',
   agents: async () => {
-    const agents: Record<string, Agent> = { notionOrchestrator };
+    const agents: Record<string, Agent> = { notionOrchestrator, emailAgent };
     try {
       const searchAgent = await getJapaneseSenseiSearchAgent();
       agents.japaneseSenseiSearchAgent = searchAgent;
