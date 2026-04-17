@@ -15,6 +15,11 @@
       "source": "intellectronica/agent-skills",
       "sourceType": "github",
       "computedHash": "aa73210fcc5a4f075f53983d5d7ddfeb1fe46fa789998bf265b86cad6ec14d2e"
+    },
+    "shadcn": {
+      "source": "shadcn/ui",
+      "sourceType": "github",
+      "computedHash": "873c67922d80775a9fdf596db7964b579f0408c30ec6e3d11989f6055bbec89f"
     }
   }
 }
