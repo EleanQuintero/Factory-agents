@@ -132,3 +132,44 @@
     @apply font-sans;
   }
 }
+
+/* React Flow (@xyflow/react) overrides — neutralize default chrome for AURA */
+.react-flow,
+.react-flow__renderer,
+.react-flow__pane {
+  background: var(--background) !important;
+}
+.react-flow__node {
+  box-shadow: none !important;
+  border: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  font-size: inherit !important;
+  color: inherit !important;
+  width: auto !important;
+}
+.react-flow__edge-path {
+  stroke: var(--muted) !important;
+  stroke-width: 1px !important;
+}
+.react-flow__handle {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  width: 1px !important;
+  height: 1px !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  border: none !important;
+  background: transparent !important;
+}
+.react-flow__controls,
+.react-flow__attribution,
+.react-flow__minimap {
+  display: none !important;
+}
+.react-flow__edge.selected .react-flow__edge-path,
+.react-flow__edge:focus .react-flow__edge-path,
+.react-flow__edge:focus-visible .react-flow__edge-path {
+  stroke: var(--foreground) !important;
+}
