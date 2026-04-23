@@ -12,11 +12,13 @@ export default function Home() {
             [STATUS: READY]
           </p>
         </section>
-        <section className="flex flex-col gap-2 text-sm uppercase tracking-wider">
-          <Link href="/chat" className="border-b border-foreground pb-1">
-            Chat with Agent
-          </Link>
-        </section>
+        <div className="flex flex-row justify-center content-center gap-4">
+          <section className="flex flex-col gap-2 text-sm uppercase tracking-wider">
+            <Link href="/forge" className="border-b border-foreground pb-1">
+              Agents Forge
+            </Link>
+          </section>
+        </div>
       </main>
     </div>
   );

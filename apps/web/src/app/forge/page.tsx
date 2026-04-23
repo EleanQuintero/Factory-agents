@@ -1,11 +1,5 @@
-import { DashboardShell } from "@/components/aura/dashboard/dashboard-shell";
-import { NodeGraph } from "@/components/aura/canvas/node-graph";
-import { SenseiInspector } from "@/components/aura/dashboard/sensei-inspector";
+import { ForgePageClient } from "@/components/aura/dashboard/forge-page-client";
 
 export default function ForgePage() {
-  return (
-    <DashboardShell inspector={<SenseiInspector />}>
-      <NodeGraph />
-    </DashboardShell>
-  );
+  return <ForgePageClient />;
 }
