@@ -61,14 +61,14 @@ export function ForgeChatPanel({ agentId }: ForgeChatPanelProps) {
   return (
     <div className="flex flex-col h-full">
       <Conversation className="flex-1 min-h-0">
-        <ConversationContent className="[&_[data-role=assistant]]:text-background [&_[data-role=user]]:text-background">
+        <ConversationContent>
           {messages.map((message) => (
             <div key={message.id}>
               {message.parts?.map((part, i) => {
                 if (part.type === "text") {
                   return (
                     <Message key={`${message.id}-${i}`} from={message.role}>
-                      <MessageContent className="text-background">
+                      <MessageContent className="group-[.is-user]:!text-foreground group-[.is-assistant]:!text-background">
                         <MessageResponse>{part.text}</MessageResponse>
                       </MessageContent>
                     </Message>
