@@ -2,6 +2,11 @@
 
 import type { ComponentProps } from "react";
 
+import type {
+  CollapsibleProps,
+  CollapsibleTriggerProps,
+  CollapsibleContentProps,
+} from "@/components/ui/collapsible";
 import {
   Collapsible,
   CollapsibleContent,
@@ -36,7 +41,7 @@ export const TaskItem = ({ children, className, ...props }: TaskItemProps) => (
   </div>
 );
 
-export type TaskProps = ComponentProps<typeof Collapsible>;
+export type TaskProps = CollapsibleProps;
 
 export const Task = ({
   defaultOpen = true,
@@ -46,7 +51,7 @@ export const Task = ({
   <Collapsible className={cn(className)} defaultOpen={defaultOpen} {...props} />
 );
 
-export type TaskTriggerProps = ComponentProps<typeof CollapsibleTrigger> & {
+export type TaskTriggerProps = CollapsibleTriggerProps & {
   title: string;
 };
 
@@ -67,7 +72,7 @@ export const TaskTrigger = ({
   </CollapsibleTrigger>
 );
 
-export type TaskContentProps = ComponentProps<typeof CollapsibleContent>;
+export type TaskContentProps = CollapsibleContentProps;
 
 export const TaskContent = ({
   children,

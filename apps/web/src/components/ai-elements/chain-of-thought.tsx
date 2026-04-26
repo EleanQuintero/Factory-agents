@@ -175,9 +175,10 @@ export const ChainOfThoughtSearchResult = memo(
   )
 );
 
-export type ChainOfThoughtContentProps = ComponentProps<
-  typeof CollapsibleContent
->;
+export type ChainOfThoughtContentProps = ComponentPropsWithoutRef<"div"> & {
+  className?: string;
+  children?: ReactNode;
+};
 
 export const ChainOfThoughtContent = memo(
   ({ className, children, ...props }: ChainOfThoughtContentProps) => {

@@ -3,6 +3,10 @@
 import type { ToolUIPart } from "ai";
 import type { ComponentProps } from "react";
 
+import type {
+  CollapsibleProps,
+  CollapsibleContentProps,
+} from "@/components/ui/collapsible";
 import {
   Collapsible,
   CollapsibleContent,
@@ -19,7 +23,7 @@ import { ChevronDownIcon, Code } from "lucide-react";
 
 import { getStatusBadge } from "./tool";
 
-export type SandboxRootProps = ComponentProps<typeof Collapsible>;
+export type SandboxRootProps = CollapsibleProps;
 
 export const Sandbox = ({ className, ...props }: SandboxRootProps) => (
   <Collapsible
@@ -60,7 +64,7 @@ export const SandboxHeader = ({
   </CollapsibleTrigger>
 );
 
-export type SandboxContentProps = ComponentProps<typeof CollapsibleContent>;
+export type SandboxContentProps = CollapsibleContentProps;
 
 export const SandboxContent = ({
   className,
