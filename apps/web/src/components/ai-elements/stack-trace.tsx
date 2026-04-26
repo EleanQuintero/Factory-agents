@@ -4,6 +4,9 @@ import type { ComponentProps } from "react";
 
 import { useControllableState } from "@radix-ui/react-use-controllable-state";
 import { Button } from "@/components/ui/button";
+import type {
+  CollapsibleTriggerProps,
+} from "@/components/ui/collapsible";
 import {
   Collapsible,
   CollapsibleContent,
@@ -209,7 +212,7 @@ export const StackTrace = memo(
   }
 );
 
-export type StackTraceHeaderProps = ComponentProps<typeof CollapsibleTrigger>;
+export type StackTraceHeaderProps = CollapsibleTriggerProps;
 
 export const StackTraceHeader = memo(
   ({ className, children, ...props }: StackTraceHeaderProps) => {

@@ -3,6 +3,9 @@
 import type { ComponentProps } from "react";
 
 import { Button } from "@/components/ui/button";
+import type {
+  CollapsibleProps,
+} from "@/components/ui/collapsible";
 import {
   Collapsible,
   CollapsibleContent,
@@ -195,7 +198,7 @@ export const QueueList = ({
 );
 
 // QueueSection - collapsible section container
-export type QueueSectionProps = ComponentProps<typeof Collapsible>;
+export type QueueSectionProps = CollapsibleProps;
 
 export const QueueSection = ({
   className,

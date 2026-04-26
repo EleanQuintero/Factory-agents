@@ -3,6 +3,11 @@
 import type { ComponentProps, HTMLAttributes } from "react";
 
 import { Badge } from "@/components/ui/badge";
+import type {
+  CollapsibleProps,
+  CollapsibleTriggerProps,
+  CollapsibleContentProps,
+} from "@/components/ui/collapsible";
 import {
   Collapsible,
   CollapsibleContent,
@@ -221,7 +226,7 @@ const TestSuiteContext = createContext<TestSuiteContextType>({
   status: "passed",
 });
 
-export type TestSuiteProps = ComponentProps<typeof Collapsible> & {
+export type TestSuiteProps = CollapsibleProps & {
   name: string;
   status: TestStatus;
 };
@@ -244,7 +249,7 @@ export const TestSuite = ({
   );
 };
 
-export type TestSuiteNameProps = ComponentProps<typeof CollapsibleTrigger>;
+export type TestSuiteNameProps = CollapsibleTriggerProps;
 
 export const TestSuiteName = ({
   className,
@@ -308,7 +313,7 @@ export const TestSuiteStats = ({
   </div>
 );
 
-export type TestSuiteContentProps = ComponentProps<typeof CollapsibleContent>;
+export type TestSuiteContentProps = CollapsibleContentProps;
 
 export const TestSuiteContent = ({
   className,

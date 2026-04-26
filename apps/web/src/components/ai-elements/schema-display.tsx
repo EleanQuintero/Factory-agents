@@ -3,6 +3,9 @@
 import type { ComponentProps, HTMLAttributes } from "react";
 
 import { Badge } from "@/components/ui/badge";
+import type {
+  CollapsibleProps,
+} from "@/components/ui/collapsible";
 import {
   Collapsible,
   CollapsibleContent,
@@ -218,7 +221,7 @@ export const SchemaDisplayContent = ({
   </div>
 );
 
-export type SchemaDisplayParametersProps = ComponentProps<typeof Collapsible>;
+export type SchemaDisplayParametersProps = CollapsibleProps;
 
 export const SchemaDisplayParameters = ({
   className,
@@ -286,7 +289,7 @@ export const SchemaDisplayParameter = ({
   </div>
 );
 
-export type SchemaDisplayRequestProps = ComponentProps<typeof Collapsible>;
+export type SchemaDisplayRequestProps = CollapsibleProps;
 
 export const SchemaDisplayRequest = ({
   className,
@@ -313,7 +316,7 @@ export const SchemaDisplayRequest = ({
   );
 };
 
-export type SchemaDisplayResponseProps = ComponentProps<typeof Collapsible>;
+export type SchemaDisplayResponseProps = CollapsibleProps;
 
 export const SchemaDisplayResponse = ({
   className,
