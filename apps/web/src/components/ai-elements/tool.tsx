@@ -4,6 +4,10 @@ import type { DynamicToolUIPart, ToolUIPart } from "ai";
 import type { ComponentProps, ReactNode } from "react";
 
 import { Badge } from "@/components/ui/badge";
+import type {
+  CollapsibleProps,
+  CollapsibleContentProps,
+} from "@/components/ui/collapsible";
 import {
   Collapsible,
   CollapsibleContent,
@@ -22,7 +26,7 @@ import { isValidElement } from "react";
 
 import { CodeBlock } from "./code-block";
 
-export type ToolProps = ComponentProps<typeof Collapsible>;
+export type ToolProps = CollapsibleProps;
 
 export const Tool = ({ className, ...props }: ToolProps) => (
   <Collapsible
@@ -101,7 +105,7 @@ export const ToolHeader = ({
   );
 };
 
-export type ToolContentProps = ComponentProps<typeof CollapsibleContent>;
+export type ToolContentProps = CollapsibleContentProps;
 
 export const ToolContent = ({ className, ...props }: ToolContentProps) => (
   <CollapsibleContent

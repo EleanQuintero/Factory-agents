@@ -4,6 +4,11 @@ import type { ComponentProps, HTMLAttributes } from "react";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import type {
+  CollapsibleProps,
+  CollapsibleTriggerProps,
+  CollapsibleContentProps,
+} from "@/components/ui/collapsible";
 import {
   Collapsible,
   CollapsibleContent,
@@ -20,7 +25,7 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-export type CommitProps = ComponentProps<typeof Collapsible>;
+export type CommitProps = CollapsibleProps;
 
 export const Commit = ({ className, children, ...props }: CommitProps) => (
   <Collapsible
@@ -31,7 +36,7 @@ export const Commit = ({ className, children, ...props }: CommitProps) => (
   </Collapsible>
 );
 
-export type CommitHeaderProps = ComponentProps<typeof CollapsibleTrigger>;
+export type CommitHeaderProps = CollapsibleTriggerProps;
 
 export const CommitHeader = ({
   className,
@@ -258,7 +263,7 @@ export const CommitCopyButton = ({
   );
 };
 
-export type CommitContentProps = ComponentProps<typeof CollapsibleContent>;
+export type CommitContentProps = CollapsibleContentProps;
 
 export const CommitContent = ({
   className,

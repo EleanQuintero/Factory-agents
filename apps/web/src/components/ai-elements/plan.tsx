@@ -12,6 +12,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import type {
+  CollapsibleProps,
+  CollapsibleTriggerProps,
+} from "@/components/ui/collapsible";
 import {
   Collapsible,
   CollapsibleContent,
@@ -37,7 +41,7 @@ const usePlan = () => {
   return context;
 };
 
-export type PlanProps = ComponentProps<typeof Collapsible> & {
+export type PlanProps = CollapsibleProps & {
   isStreaming?: boolean;
 };
 
@@ -126,7 +130,7 @@ export const PlanFooter = (props: PlanFooterProps) => (
   <CardFooter data-slot="plan-footer" {...props} />
 );
 
-export type PlanTriggerProps = ComponentProps<typeof CollapsibleTrigger>;
+export type PlanTriggerProps = CollapsibleTriggerProps;
 
 export const PlanTrigger = ({ className, ...props }: PlanTriggerProps) => (
   <CollapsibleTrigger asChild>

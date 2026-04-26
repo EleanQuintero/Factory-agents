@@ -2,6 +2,10 @@
 
 import type { ComponentProps } from "react";
 
+import type {
+  CollapsibleTriggerProps,
+  CollapsibleContentProps,
+} from "@/components/ui/collapsible";
 import {
   Collapsible,
   CollapsibleContent,
@@ -19,7 +23,7 @@ export const Sources = ({ className, ...props }: SourcesProps) => (
   />
 );
 
-export type SourcesTriggerProps = ComponentProps<typeof CollapsibleTrigger> & {
+export type SourcesTriggerProps = CollapsibleTriggerProps & {
   count: number;
 };
 
@@ -42,7 +46,7 @@ export const SourcesTrigger = ({
   </CollapsibleTrigger>
 );
 
-export type SourcesContentProps = ComponentProps<typeof CollapsibleContent>;
+export type SourcesContentProps = CollapsibleContentProps;
 
 export const SourcesContent = ({
   className,

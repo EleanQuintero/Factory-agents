@@ -3,6 +3,9 @@
 import type { ComponentProps, ReactNode } from "react";
 
 import { useControllableState } from "@radix-ui/react-use-controllable-state";
+import type {
+  CollapsibleProps,
+} from "@/components/ui/collapsible";
 import {
   Collapsible,
   CollapsibleContent,
@@ -45,7 +48,7 @@ export const useReasoning = () => {
   return context;
 };
 
-export type ReasoningProps = ComponentProps<typeof Collapsible> & {
+export type ReasoningProps = CollapsibleProps & {
   isStreaming?: boolean;
   open?: boolean;
   defaultOpen?: boolean;
