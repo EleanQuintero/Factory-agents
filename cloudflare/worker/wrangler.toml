@@ -1,0 +1,11 @@
+name = "zenith-factory-edge-gateway"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Environments
+[env.staging]
+name = "zenith-factory-edge-gateway-staging"
+
+[env.production]
+name = "zenith-factory-edge-gateway"
