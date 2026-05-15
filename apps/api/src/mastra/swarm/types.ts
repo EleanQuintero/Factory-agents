@@ -1,12 +1,9 @@
 import type { SwarmConfig } from '@factory/contracts';
+import type { Agent } from '@mastra/core/agent';
+import type { Tool } from '@mastra/core/tools';
 
-export interface LoadedAgent {
-  config: SwarmConfig;
-  orchestrator: Agent;
-  workers: Map<string, Agent>;
-  toolRegistry: ToolRegistry;
-  createdAt: number;
-}
+// Re-export existing types from swarm-config.schema
+export type { LoadedSwarm as LoadedAgent } from './swarm-config.schema';
 
 export interface VmStatus {
   status: 'ok';
