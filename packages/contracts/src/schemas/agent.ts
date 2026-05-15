@@ -1,13 +1,5 @@
 import { z } from 'zod';
 
-export const OrchestratorSchema = z.object({
-  id: z.string().min(1),
-  name: z.string().min(1),
-  model: z.string().min(1),
-  instructions: z.string().optional(),
-  tools: z.array(z.string()),
-});
-
 export const WorkerSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
@@ -15,11 +7,19 @@ export const WorkerSchema = z.object({
   tools: z.array(z.string()),
 });
 
+export const OrchestratorSchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1),
+  model: z.string().min(1),
+  instructions: z.string().optional(),
+  tools: z.array(z.string()),
+  workers: z.array(WorkerSchema),
+});
+
 export const SwarmConfigSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
   orchestrator: OrchestratorSchema,
-  workers: z.array(WorkerSchema),
 });
 
 export const CreateAgentRequestSchema = z.object({
