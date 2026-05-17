@@ -1,8 +1,10 @@
 import type { Request, Response } from 'express';
+import path from 'path';
+import { randomUUID } from 'node:crypto';
 import { loadSwarm } from '../SwarmLoader';
 import { buildToolRegistry } from '../swarm-config.schema';
 import { validateCreateAgentRequest, validateChatRequest } from '../validators';
-import type { SwarmConfig } from '@factory/contracts';
+import type { SwarmConfig } from '../schema';
 import type { Agent } from '@mastra/core/agent';
 import type { Tool } from '@mastra/core/tools';
 
@@ -13,17 +15,27 @@ export type { VmStatus } from '../types';
 // tools.mjs is part of the compiled output (.mastra/output/tools.mjs)
 // This contains all available tools (notion, email, tavily, etc.)
 async function buildToolRegistryFromOutput(): Promise<Map<string, Tool>> {
-  const { tools } = await import('../../.mastra/output/tools.mjs');
-  const registry = new Map<string, Tool>();
-  for (const tool of tools) {
-    registry.set(tool.id, tool);
+  try {
+    // When node runs vm-server.mjs, cwd is /app/mastra/output (set by WORKDIR in Dockerfile)
+    // tools.mjs is in the same directory
+    const toolsPath = path.resolve('tools.mjs');
+    const { tools } = await import(`file://${toolsPath}`);
+    const registry = new Map<string, Tool>();
+    for (const tool of tools) {
+      registry.set(tool.id, tool);
+    }
+    return registry;
+  } catch (error) {
+    // If tools fail to load (e.g., React dependency issues), use empty registry
+    console.warn('[agent.controller] Tool registry failed to load, using empty registry:', error instanceof Error ? error.message : String(error));
+    return new Map<string, Tool>();
   }
-  return registry;
 }
 
 // In-memory cache for the current agent (1 per VM)
 let currentAgent: Agent | null = null;
 let currentSwarmConfig: SwarmConfig | null = null;
+let currentUserId: string | null = null;
 let toolRegistry: Map<string, Tool> | null = null;
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -47,14 +59,15 @@ export async function handleCreateAgent(req: Request, res: Response): Promise<vo
       toolRegistry = await buildToolRegistryFromOutput();
     }
 
-    const { swarm_config } = validateCreateAgentRequest(req.body);
+    const { swarm_config, userId } = validateCreateAgentRequest(req.body);
 
     // Load swarm with tool registry
-    const loadedSwarm = loadSwarm(swarm_config, { toolRegistry });
+    const loadedSwarm = loadSwarm(swarm_config, { toolRegistry, userId });
 
     // Cache the orchestrator (1 per VM)
     currentAgent = loadedSwarm.orchestrator;
     currentSwarmConfig = swarm_config;
+    currentUserId = userId;
 
     res.status(201).json({
       status: 'created',
@@ -83,13 +96,14 @@ export async function handleUpdateAgent(req: Request, res: Response): Promise<vo
       toolRegistry = await buildToolRegistryFromOutput();
     }
 
-    const { swarm_config } = validateCreateAgentRequest(req.body);
+    const { swarm_config, userId } = validateCreateAgentRequest(req.body);
 
     // Reload swarm with new config
-    const loadedSwarm = loadSwarm(swarm_config, { toolRegistry });
+    const loadedSwarm = loadSwarm(swarm_config, { toolRegistry, userId });
 
     currentAgent = loadedSwarm.orchestrator;
     currentSwarmConfig = swarm_config;
+    currentUserId = userId;
 
     res.status(200).json({
       status: 'updated',
@@ -128,12 +142,16 @@ export async function handleChat(req: Request, res: Response): Promise<void> {
   try {
     const { prompt, threadId } = validateChatRequest(req.body);
 
-    // Set headers for streaming
+    const thread = threadId ?? randomUUID();
+    const resource = currentUserId ?? agentId;
+
     res.setHeader('Content-Type', 'text/plain; charset=utf-8');
     res.setHeader('Transfer-Encoding', 'chunked');
+    res.setHeader('X-Thread-Id', thread);
 
-    // Stream the response
-    const stream = await currentAgent.stream(prompt);
+    const stream = await currentAgent.stream(prompt, {
+      memory: { thread, resource },
+    });
 
     for await (const chunk of stream.textStream) {
       res.write(chunk);
@@ -173,7 +191,7 @@ export function handleStatus(_req: Request, res: Response): void {
     },
     agent: {
       agentId: currentSwarmConfig?.id ?? null,
-      userId: null,
+      userId: currentUserId,
       ready: currentAgent !== null,
     },
   });

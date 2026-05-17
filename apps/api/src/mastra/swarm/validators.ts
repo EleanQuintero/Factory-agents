@@ -1,6 +1,10 @@
 import { z } from 'zod';
-import { CreateAgentRequestSchema, ChatRequestSchema } from '@factory/contracts';
-import type { CreateAgentRequest, ChatRequest } from '@factory/contracts';
+import {
+  CreateAgentRequestSchema,
+  ChatRequestSchema,
+  type CreateAgentRequest,
+  type ChatRequest,
+} from './schema';
 
 export { CreateAgentRequestSchema, ChatRequestSchema };
 export type { CreateAgentRequest, ChatRequest };
