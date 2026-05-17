@@ -5,13 +5,17 @@
  * orchestrator via `agents: {}` (all sync) or `agents: async () => {}` (any async).
  */
 
-import type { Agent } from '@mastra/core/agent';
+import { Agent } from '@mastra/core/agent';
+import { Memory } from '@mastra/memory';
 import type {
   SwarmConfig,
   LoadedSwarm,
   ToolRegistry,
+  WorkerConfig,
 } from './swarm-config.schema';
 import { AgentFactory } from './AgentFactory';
+import pgStore from '../storage/pgsql';
+import { BUILTIN_WORKERS, isBuiltinWorker } from './builtins';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // SwarmLoader
@@ -20,6 +24,11 @@ import { AgentFactory } from './AgentFactory';
 export interface SwarmLoaderConfig {
   /** Registry of available tools for lookup by name */
   toolRegistry: ToolRegistry;
+  /**
+   * User identifier for builtin workers that need it (e.g. Composio sessions).
+   * Required when the swarm config references builtin workers like 'composio-search'.
+   */
+  userId?: string;
   /**
    * Base delay in ms for exponential backoff on async worker retries.
    * Default: 500ms
@@ -54,15 +63,45 @@ export function loadSwarm(config: SwarmConfig, loaderConfig?: SwarmLoaderConfig)
     );
   }
 
-  // Create factory
+  // Separate builtin workers from regular workers
+  const allWorkers = config.orchestrator.workers ?? [];
+  const builtinConfigs: WorkerConfig[] = [];
+  const regularConfigs: WorkerConfig[] = [];
+  for (const w of allWorkers) {
+    if (isBuiltinWorker(w.id)) {
+      builtinConfigs.push(w);
+    } else {
+      regularConfigs.push(w);
+    }
+  }
+
+  // Create regular workers via the factory
   const factory = new AgentFactory({
     toolRegistry: loaderConfig?.toolRegistry ?? new Map(),
     baseDelayMs: loaderConfig?.baseDelayMs ?? 500,
     maxRetries: loaderConfig?.maxRetries ?? 3,
   });
+  const workersResult = factory.createWorkers(regularConfigs);
 
-  // Create workers
-  const workersResult = factory.createWorkers(config.orchestrator.workers ?? []);
+  // Create builtin workers (always async, attached as Promise<Agent>)
+  for (const workerConfig of builtinConfigs) {
+    const factoryFn = BUILTIN_WORKERS[workerConfig.id];
+    if (!loaderConfig?.userId) {
+      const err = new Error(
+        `[SwarmLoader] Builtin worker "${workerConfig.id}" requires userId in loader config`
+      );
+      const optional = workerConfig.optional ?? true;
+      workersResult.failed.push({
+        workerId: workerConfig.id,
+        error: err,
+        optional,
+        success: false,
+      });
+      continue;
+    }
+    const agentPromise = factoryFn(workerConfig, { userId: loaderConfig.userId });
+    workersResult.successful.set(workerConfig.id, agentPromise);
+  }
 
   // Log warnings for failed workers
   for (const failure of workersResult.failed) {
@@ -108,17 +147,15 @@ function createOrchestrator(
   workers: Map<string, Agent | Promise<Agent>>,
   hasAsyncWorkers: boolean
 ): Agent {
-  // Build the agents object for the orchestrator
-  // If we have async workers, we need to use the async form
-  // Otherwise use static object for better performance
+  const memory = new Memory({ storage: pgStore });
 
   if (hasAsyncWorkers) {
-    // Async workers: use the async callback form
     return new Agent({
       id: orchestratorConfig.id,
       name: orchestratorConfig.name,
       instructions: orchestratorConfig.instructions ?? getDefaultOrchestratorInstructions(orchestratorConfig),
       model: orchestratorConfig.model,
+      memory,
       agents: async () => {
         const resolvedWorkers: Record<string, Agent> = {};
 
@@ -139,7 +176,6 @@ function createOrchestrator(
       },
     });
   } else {
-    // All sync workers: use static object for better performance
     const syncWorkers: Record<string, Agent> = {};
     for (const [id, worker] of workers) {
       if (!(worker instanceof Promise)) {
@@ -152,6 +188,7 @@ function createOrchestrator(
       name: orchestratorConfig.name,
       instructions: orchestratorConfig.instructions ?? getDefaultOrchestratorInstructions(orchestratorConfig),
       model: orchestratorConfig.model,
+      memory,
       agents: syncWorkers,
     });
   }

@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Development
+*.md
+.env
+.env.*
+!.env.example
+
+# Git
+.git/
+.gitignore
+
+# Build artifacts
+.turbo/
+dist/
+build/
+out/
+
+# Tests
+*.test.ts
+*.spec.ts
+coverage/
+
+# Docs y skills (no van en producción)
+skills/
+docs/
+cloudflare/
+openspec/
+packages/contracts/
+
+# IDE
+.vscode/
+.idea/
