@@ -60,7 +60,11 @@ next-env.d.ts
 # claude code local config
 .agents/
 .claude/
+.mcp.json
 skills-lock.json
+
+# fly.io local config (solo dev)
+apps/api/fly.toml
 
 # markdown (except agent/claude docs)
 *.md
