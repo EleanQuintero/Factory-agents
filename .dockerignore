@@ -1,0 +1,50 @@
+# Dependencies
+node_modules/
+**/node_modules/
+.pnpm-store/
+
+# Development
+*.md
+**/.env
+**/.env.*
+!**/.env.example
+!**/.env.example.docker
+
+# Git
+.git/
+.gitignore
+
+# Build artifacts
+.turbo/
+**/.turbo/
+dist/
+**/dist/
+build/
+**/build/
+out/
+**/out/
+**/.mastra/output/
+
+# Tests
+**/*.test.ts
+**/*.spec.ts
+**/coverage/
+
+# Docs y otros paquetes/dirs que NO van en la Golden Image API
+skills/
+**/skills/
+docs/
+cloudflare/
+openspec/
+packages/contracts/
+
+# Frontend (no va en la API VM)
+apps/web/
+
+# IDE
+.vscode/
+.idea/
+
+# Claude Code / agent artifacts
+.claude/
+memory/
