@@ -8,6 +8,14 @@ FLY_APP_NAME = "zenith-factory"
 FLY_REGION = "fra"
 FLY_MACHINE_IMAGE = "registry.fly.io/zenith-factory:golden-v1"
 
+[observability]
+enabled = true
+
+[observability.logs]
+enabled = true
+invocation_logs = true
+head_sampling_rate = 1
+
 # Environments
 [env.staging]
 name = "zenith-factory-edge-gateway-staging"
