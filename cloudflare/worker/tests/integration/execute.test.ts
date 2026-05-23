@@ -40,6 +40,9 @@ const mockEnv: Env = {
   SUPABASE_URL: 'https://test.supabase.co',
   SUPABASE_SERVICE_KEY: 'service-key',
   FLY_API_TOKEN: 'fly-token',
+  FLY_APP_NAME: 'zenith-factory',
+  FLY_REGION: 'fra',
+  FLY_MACHINE_IMAGE: 'registry.fly.io/zenith-factory:golden-v1',
   ENV: 'development',
 };
 

@@ -3,6 +3,11 @@ main = "src/index.ts"
 compatibility_date = "2024-01-01"
 compatibility_flags = ["nodejs_compat"]
 
+[vars]
+FLY_APP_NAME = "zenith-factory"
+FLY_REGION = "fra"
+FLY_MACHINE_IMAGE = "registry.fly.io/zenith-factory:golden-v1"
+
 # Environments
 [env.staging]
 name = "zenith-factory-edge-gateway-staging"

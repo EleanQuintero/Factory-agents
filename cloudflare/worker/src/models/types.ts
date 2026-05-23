@@ -3,6 +3,9 @@ export interface Env {
   SUPABASE_URL: string;
   SUPABASE_SERVICE_KEY: string;
   FLY_API_TOKEN: string;
+  FLY_APP_NAME: string;
+  FLY_REGION: string;
+  FLY_MACHINE_IMAGE: string;
   ENV: 'development' | 'staging' | 'production';
 }
 
