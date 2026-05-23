@@ -28,13 +28,22 @@ describe('routes integration', () => {
     expect(response.status).toBeGreaterThanOrEqual(400);
   });
 
-  it('should mount /execute/:agentId route (POST)', async () => {
+  it('should mount /chat/:agentId route (POST)', async () => {
     const app = buildApp();
-    // Sending a POST to /execute/:agentId without body — should not be 404
-    const response = await app.request('/execute/123e4567-e89b-12d3-a456-426614174000', {
+    const response = await app.request('/chat/123e4567-e89b-12d3-a456-426614174000', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ prompt: 'hello' }),
+    });
+    expect(response.status).not.toBe(404);
+  });
+
+  it('should mount /agent/create/:agentId route (POST)', async () => {
+    const app = buildApp();
+    const response = await app.request('/agent/create/123e4567-e89b-12d3-a456-426614174000', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId: 'test', swarm_config: {} }),
     });
     expect(response.status).not.toBe(404);
   });

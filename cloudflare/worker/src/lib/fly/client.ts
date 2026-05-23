@@ -184,8 +184,8 @@ export class FlyMachinesClient {
     return existing;
   }
 
-  getVmUrl(userId: string): string {
-    return `https://vm-${userId}.vm.${this.env.FLY_APP_NAME}.fly.dev`;
+  getVmUrl(): string {
+    return `https://${this.env.FLY_APP_NAME}.fly.dev`;
   }
 
   private buildTenantConfig(userId: string): CreateMachineRequest {

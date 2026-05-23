@@ -16,10 +16,10 @@ export async function handleHealthCheck(c: Context<{ Bindings: Env }>): Promise<
   await validateAgent(agentId, supabase);
 
   const fly = new FlyMachinesClient(c.env);
-  await fly.ensureMachine(agentId);
-  const vmUrl = fly.getVmUrl(agentId);
+  const machine = await fly.ensureMachine(agentId);
+  const vmUrl = fly.getVmUrl();
 
-  const ready = await waitForVmReady(vmUrl);
+  const ready = await waitForVmReady(vmUrl, machine.id);
 
   if (!ready) {
     throw new Error('VM did not become ready within timeout');

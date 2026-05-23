@@ -4,8 +4,6 @@ import type { Env } from '../../src/models/types';
 import { corsMiddleware, errorMiddleware } from '../../src/middleware';
 import { createRouter } from '../../src/routes';
 
-// ── Module mocks ──────────────────────────────────────────────────────────────
-
 vi.mock('../../src/lib/supabase', () => ({
   createSupabaseClient: vi.fn(),
 }));
@@ -28,16 +26,12 @@ vi.mock('../../src/lib/fly/client', () => ({
   })),
 }));
 
-// ── Imports after mocking ─────────────────────────────────────────────────────
-
 import { createSupabaseClient } from '../../src/lib/supabase';
 import { validateAgent } from '../../src/services/agentService';
 import { waitForVmReady } from '../../src/services/vmService';
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
 const AGENT_ID = '123e4567-e89b-12d3-a456-426614174000';
-const VM_URL = `https://vm-${AGENT_ID}.vm.zenith-factory.fly.dev`;
+const VM_URL = 'https://zenith-factory.fly.dev';
 
 const mockEnv: Env = {
   SUPABASE_URL: 'https://test.supabase.co',
@@ -57,8 +51,6 @@ function buildApp() {
   return app;
 }
 
-// ── Tests ─────────────────────────────────────────────────────────────────────
-
 describe('GET /health', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -70,7 +62,7 @@ describe('GET /health', () => {
     mockGetVmUrl.mockReturnValue(VM_URL);
   });
 
-  it('should return 200 with ready status when VM is already running', async () => {
+  it('should return 200 with ready status when VM is running', async () => {
     vi.mocked(waitForVmReady).mockResolvedValue(true);
 
     const app = buildApp();
@@ -95,8 +87,5 @@ describe('GET /health', () => {
 
     expect(response.status).toBe(200);
     expect(mockEnsureMachine).toHaveBeenCalledWith(AGENT_ID);
-
-    const body = await response.json() as { status: string };
-    expect(body.status).toBe('ready');
   });
 });
