@@ -1,2 +1,3 @@
 export * from './supabase';
-export * from './flyio';
+export * from './fly/client';
+export * from './fly/types';

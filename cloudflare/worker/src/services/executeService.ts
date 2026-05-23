@@ -1,11 +1,9 @@
 import { HTTPException } from 'hono/http-exception';
-import type { FlyioClient } from '../lib/flyio';
 import type { ExecuteRequest } from '../models/types';
 
-const EXECUTE_TIMEOUT_MS = 60_000; // 60 seconds
-/** Total attempts = 1 initial + MAX_RETRIES retries (spec: "2 retries" = 3 total) */
+const EXECUTE_TIMEOUT_MS = 60_000;
 const MAX_RETRIES = 2;
-const RETRY_DELAY_MS = 1000; // 1 second backoff
+const RETRY_DELAY_MS = 1000;
 
 export class RetryExhaustedError extends HTTPException {
   constructor(public readonly attempts: number) {
@@ -17,18 +15,12 @@ export class RetryExhaustedError extends HTTPException {
   }
 }
 
-/**
- * Execute request with retry logic for 502 errors
- *
- * @returns Response object (caller must clone if reading body)
- */
 export async function executeWithRetry(
   agentId: string,
   request: ExecuteRequest,
-  flyio: FlyioClient,
+  vmUrl: string,
   sleepFn: (ms: number) => Promise<void> = (ms) => new Promise((r) => setTimeout(r, ms))
 ): Promise<Response> {
-  const vmUrl = flyio.getVmUrl(agentId);
   const executeUrl = `${vmUrl}/execute/${agentId}`;
 
   let lastError: Error | null = null;
@@ -47,14 +39,12 @@ export async function executeWithRetry(
 
       clearTimeout(timeoutId);
 
-      // Only retry on 502 (Bad Gateway - VM restarting)
       if (!response.ok && response.status === 502) {
         lastError = new Error('502 Bad Gateway');
         await sleepFn(RETRY_DELAY_MS);
         continue;
       }
 
-      // Non-502 non-ok responses: throw immediately (no retry)
       if (!response.ok) {
         throw new Error(`Request failed with status ${response.status}`);
       }
@@ -68,7 +58,6 @@ export async function executeWithRetry(
         });
       }
 
-      // Re-throw non-502 errors immediately (no retry)
       if (!(error instanceof Error) || !error.message.includes('502')) {
         throw error;
       }
@@ -86,17 +75,11 @@ export async function executeWithRetry(
   throw new RetryExhaustedError(MAX_RETRIES + 1);
 }
 
-/**
- * Proxy execute request to Fly.io VM
- *
- * @returns Response - caller must clone if reading body multiple times
- */
 export async function executeProxy(
   agentId: string,
   request: ExecuteRequest,
-  flyio: FlyioClient
+  vmUrl: string,
 ): Promise<Response> {
-  const vmUrl = flyio.getVmUrl(agentId);
   const executeUrl = `${vmUrl}/execute/${agentId}`;
 
   const controller = new AbortController();

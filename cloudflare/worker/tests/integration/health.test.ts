@@ -15,27 +15,29 @@ vi.mock('../../src/services/agentService', () => ({
 }));
 
 vi.mock('../../src/services/vmService', () => ({
-  getVmStatus: vi.fn(),
-  createMachine: vi.fn(),
-  startMachine: vi.fn(),
   waitForVmReady: vi.fn(),
 }));
 
-vi.mock('../../src/lib/flyio', () => ({
-  createFlyioClient: vi.fn(),
+const mockEnsureMachine = vi.fn();
+const mockGetVmUrl = vi.fn();
+
+vi.mock('../../src/lib/fly/client', () => ({
+  FlyMachinesClient: vi.fn().mockImplementation(() => ({
+    ensureMachine: mockEnsureMachine,
+    getVmUrl: mockGetVmUrl,
+  })),
 }));
 
 // ── Imports after mocking ─────────────────────────────────────────────────────
 
 import { createSupabaseClient } from '../../src/lib/supabase';
 import { validateAgent } from '../../src/services/agentService';
-import { getVmStatus, createMachine, startMachine, waitForVmReady } from '../../src/services/vmService';
-import { createFlyioClient } from '../../src/lib/flyio';
+import { waitForVmReady } from '../../src/services/vmService';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 const AGENT_ID = '123e4567-e89b-12d3-a456-426614174000';
-const VM_URL = `https://zenith-factory-${AGENT_ID}.fly.dev`;
+const VM_URL = `https://vm-${AGENT_ID}.vm.zenith-factory.fly.dev`;
 
 const mockEnv: Env = {
   SUPABASE_URL: 'https://test.supabase.co',
@@ -61,23 +63,14 @@ describe('GET /health', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // Default: agent exists
     vi.mocked(validateAgent).mockResolvedValue(undefined);
-
-    // Default: flyio client with getVmUrl
-    vi.mocked(createFlyioClient).mockReturnValue({
-      getVmUrl: () => VM_URL,
-      getMachineStatus: vi.fn(),
-      createMachine: vi.fn(),
-      startMachine: vi.fn(),
-    } as ReturnType<typeof createFlyioClient>);
-
-    // Default: supabase client
     vi.mocked(createSupabaseClient).mockReturnValue({} as ReturnType<typeof createSupabaseClient>);
+
+    mockEnsureMachine.mockResolvedValue({ id: 'mach-123', state: 'started' });
+    mockGetVmUrl.mockReturnValue(VM_URL);
   });
 
   it('should return 200 with ready status when VM is already running', async () => {
-    vi.mocked(getVmStatus).mockResolvedValue('running');
     vi.mocked(waitForVmReady).mockResolvedValue(true);
 
     const app = buildApp();
@@ -94,16 +87,14 @@ describe('GET /health', () => {
     });
   });
 
-  it('should create VM and return ready when VM does not exist', async () => {
-    vi.mocked(getVmStatus).mockResolvedValue('none');
-    vi.mocked(createMachine).mockResolvedValue('machine-id-123');
+  it('should call ensureMachine and return ready', async () => {
     vi.mocked(waitForVmReady).mockResolvedValue(true);
 
     const app = buildApp();
     const response = await app.request(`/health?agentId=${AGENT_ID}`, {}, mockEnv);
 
     expect(response.status).toBe(200);
-    expect(createMachine).toHaveBeenCalledWith(AGENT_ID, expect.anything());
+    expect(mockEnsureMachine).toHaveBeenCalledWith(AGENT_ID);
 
     const body = await response.json() as { status: string };
     expect(body.status).toBe('ready');
