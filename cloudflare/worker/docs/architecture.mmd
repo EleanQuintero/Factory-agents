@@ -1,0 +1,90 @@
+%%{ init: { "theme": "dark", "flowchart": { "curve": "basis" } } }%%
+flowchart TB
+    subgraph Client["Cliente"]
+        UI["Frontend / API Consumer"]
+    end
+
+    subgraph CF["Cloudflare Worker — Edge Gateway"]
+        direction TB
+        MW["Middleware\nCORS + Error Handler"]
+
+        subgraph Routes["Endpoints"]
+            HEALTH["GET /health?agentId=xxx\nPre-warm VM"]
+            EXEC["POST /execute/:agentId\nProxy ejecución"]
+        end
+
+        subgraph FlyClient["FlyMachinesClient"]
+            ENSURE["ensureMachine(agentId)"]
+            RETRY["withRetry — 429/5xx\nExponential backoff"]
+            ERRORS["Error mapping\n401→AuthError\n404→NotFound\n408→Timeout\n429→RateLimit\n5xx→ServerError"]
+        end
+
+        VMREADY["waitForVmReady\nPoll /health cada 500ms"]
+        EXECRETRY["executeWithRetry\nRetry en 502 — max 3 intentos"]
+    end
+
+    subgraph Supa["Supabase — Postgres (eu-central-1)"]
+        AGENTS[("agent_configs")]
+        LOGS[("agent_logs")]
+        MEMORY[("chat_memory")]
+    end
+
+    subgraph Fly["Fly.io — Machine API (fra)"]
+        FLYAPI["api.machines.dev/v1"]
+
+        subgraph VM["VM: vm-agentId.vm.zenith-factory.fly.dev"]
+            direction TB
+            GOLDEN["Golden Image — Node.js 22"]
+            MASTRA["Mastra Agent Runtime"]
+            SWARM["Swarm Engine"]
+            TOOLS["Tools\nComposio Search\nResend Email"]
+            VMHEALTH["/health"]
+            VMEXEC["/execute/:agentId"]
+        end
+    end
+
+    %% Client to Worker
+    UI -- "1. Request" --> MW
+    MW --> HEALTH
+    MW --> EXEC
+
+    %% Health flow
+    HEALTH -- "2. Validar agente" --> AGENTS
+    HEALTH -- "3. Ensure VM" --> ENSURE
+    ENSURE -- "REST API" --> FLYAPI
+    FLYAPI -- "Create/Start/Noop" --> VM
+    HEALTH -- "4. Poll readiness" --> VMHEALTH
+
+    %% Execute flow
+    EXEC -- "2. Validar agente" --> AGENTS
+    EXEC -- "3. Ensure VM" --> ENSURE
+    EXEC -- "4. Poll readiness" --> VMREADY
+    VMREADY -- "GET /health" --> VMHEALTH
+    EXEC -- "5. Proxy prompt" --> EXECRETRY
+    EXECRETRY -- "POST" --> VMEXEC
+
+    %% VM internals
+    VMEXEC --> MASTRA
+    MASTRA --> SWARM
+    SWARM --> TOOLS
+    MASTRA -- "Chat persistence" --> MEMORY
+
+    %% Async logging
+    EXEC -. "6. ctx.waitUntil\n(async, best-effort)" .-> LOGS
+
+    %% Retry internal
+    ENSURE --> RETRY
+    RETRY --> ERRORS
+
+    %% Styling
+    classDef worker fill:#1e3a5f,stroke:#4a9eff,color:#fff
+    classDef supa fill:#1a4d2e,stroke:#3ecf8e,color:#fff
+    classDef fly fill:#4d1a4d,stroke:#b44ae0,color:#fff
+    classDef client fill:#3d3d00,stroke:#e6e600,color:#fff
+    classDef endpoint fill:#0d3b66,stroke:#60a5fa,color:#fff
+
+    class UI client
+    class MW,FlyClient,ENSURE,RETRY,ERRORS,VMREADY,EXECRETRY worker
+    class HEALTH,EXEC endpoint
+    class AGENTS,LOGS,MEMORY supa
+    class FLYAPI,VM,GOLDEN,MASTRA,SWARM,TOOLS,VMHEALTH,VMEXEC fly

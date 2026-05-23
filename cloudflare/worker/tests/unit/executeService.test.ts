@@ -1,11 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import type { FlyioClient } from '../../src/lib/flyio';
-
-// Import after mocking
 import { executeWithRetry, executeProxy } from '../../src/services/executeService';
 
+const VM_URL = 'https://vm-agent-123.vm.zenith-factory.fly.dev';
+
 describe('executeService', () => {
-  let mockFlyio: Partial<FlyioClient>;
   let mockFetch: ReturnType<typeof vi.fn>;
   let sleepFn: ReturnType<typeof vi.fn>;
 
@@ -14,10 +12,6 @@ describe('executeService', () => {
     mockFetch = vi.fn();
     global.fetch = mockFetch;
     sleepFn = vi.fn().mockResolvedValue(undefined);
-
-    mockFlyio = {
-      getVmUrl: (agentId: string) => `https://zenith-factory-${agentId}.fly.dev`,
-    };
   });
 
   describe('executeWithRetry', () => {
@@ -32,8 +26,8 @@ describe('executeService', () => {
       const result = await executeWithRetry(
         'agent-123',
         { prompt: 'Hello' },
-        mockFlyio as FlyioClient,
-        sleepFn
+        VM_URL,
+        sleepFn,
       );
 
       expect(result.ok).toBe(true);
@@ -49,19 +43,19 @@ describe('executeService', () => {
       };
 
       mockFetch
-        .mockResolvedValueOnce(errorResponse)  // First attempt fails
-        .mockResolvedValueOnce(successResponse); // Second attempt succeeds
+        .mockResolvedValueOnce(errorResponse)
+        .mockResolvedValueOnce(successResponse);
 
       const result = await executeWithRetry(
         'agent-123',
         { prompt: 'Hello' },
-        mockFlyio as FlyioClient,
-        sleepFn
+        VM_URL,
+        sleepFn,
       );
 
       expect(result.ok).toBe(true);
       expect(mockFetch).toHaveBeenCalledTimes(2);
-      expect(sleepFn).toHaveBeenCalledWith(1000); // 1s backoff
+      expect(sleepFn).toHaveBeenCalledWith(1000);
     });
 
     it('should throw after exhausting retries', async () => {
@@ -69,10 +63,9 @@ describe('executeService', () => {
       mockFetch.mockResolvedValue(errorResponse);
 
       await expect(
-        executeWithRetry('agent-123', { prompt: 'Hello' }, mockFlyio as FlyioClient, sleepFn)
+        executeWithRetry('agent-123', { prompt: 'Hello' }, VM_URL, sleepFn),
       ).rejects.toThrow('Retry exhausted after 3 attempts');
 
-      // spec: "2 retries" = 1 initial + 2 retries = 3 total attempts
       expect(mockFetch).toHaveBeenCalledTimes(3);
     });
 
@@ -81,10 +74,10 @@ describe('executeService', () => {
       mockFetch.mockResolvedValue(notFoundResponse);
 
       await expect(
-        executeWithRetry('agent-123', { prompt: 'Hello' }, mockFlyio as FlyioClient, sleepFn)
+        executeWithRetry('agent-123', { prompt: 'Hello' }, VM_URL, sleepFn),
       ).rejects.toThrow();
 
-      expect(mockFetch).toHaveBeenCalledTimes(1); // No retry for 404
+      expect(mockFetch).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -98,15 +91,15 @@ describe('executeService', () => {
       };
       mockFetch.mockResolvedValue(mockResponse);
 
-      await executeProxy('agent-123', { prompt: 'Hello' }, mockFlyio as FlyioClient);
+      await executeProxy('agent-123', { prompt: 'Hello' }, VM_URL);
 
       expect(mockFetch).toHaveBeenCalledWith(
-        'https://zenith-factory-agent-123.fly.dev/execute/agent-123',
+        `${VM_URL}/execute/agent-123`,
         expect.objectContaining({
           method: 'POST',
           headers: expect.objectContaining({ 'Content-Type': 'application/json' }),
           body: JSON.stringify({ prompt: 'Hello' }),
-        })
+        }),
       );
     });
 
@@ -118,7 +111,7 @@ describe('executeService', () => {
       };
       mockFetch.mockResolvedValue(mockResponse);
 
-      await executeProxy('agent-123', { prompt: 'Hello' }, mockFlyio as FlyioClient);
+      await executeProxy('agent-123', { prompt: 'Hello' }, VM_URL);
 
       const fetchCall = mockFetch.mock.calls[0];
       const options = fetchCall[1] as RequestInit;

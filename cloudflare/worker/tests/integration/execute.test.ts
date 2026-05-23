@@ -15,31 +15,37 @@ vi.mock('../../src/services/agentService', () => ({
 }));
 
 vi.mock('../../src/services/vmService', () => ({
-  getVmStatus: vi.fn(),
-  startMachine: vi.fn(),
   waitForVmReady: vi.fn(),
 }));
 
-vi.mock('../../src/lib/flyio', () => ({
-  createFlyioClient: vi.fn(),
+const mockEnsureMachine = vi.fn();
+const mockGetVmUrl = vi.fn();
+
+vi.mock('../../src/lib/fly/client', () => ({
+  FlyMachinesClient: vi.fn().mockImplementation(() => ({
+    ensureMachine: mockEnsureMachine,
+    getVmUrl: mockGetVmUrl,
+  })),
 }));
 
 // ── Imports after mocking ─────────────────────────────────────────────────────
 
 import { createSupabaseClient } from '../../src/lib/supabase';
 import { validateAgent } from '../../src/services/agentService';
-import { getVmStatus, startMachine, waitForVmReady } from '../../src/services/vmService';
-import { createFlyioClient } from '../../src/lib/flyio';
+import { waitForVmReady } from '../../src/services/vmService';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 const AGENT_ID = '123e4567-e89b-12d3-a456-426614174000';
-const VM_URL = `https://zenith-factory-${AGENT_ID}.fly.dev`;
+const VM_URL = `https://vm-${AGENT_ID}.vm.zenith-factory.fly.dev`;
 
 const mockEnv: Env = {
   SUPABASE_URL: 'https://test.supabase.co',
   SUPABASE_SERVICE_KEY: 'service-key',
   FLY_API_TOKEN: 'fly-token',
+  FLY_APP_NAME: 'zenith-factory',
+  FLY_REGION: 'fra',
+  FLY_MACHINE_IMAGE: 'registry.fly.io/zenith-factory:golden-v1',
   ENV: 'development',
 };
 
@@ -67,24 +73,12 @@ describe('POST /execute/:agentId', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // Default: agent exists
     vi.mocked(validateAgent).mockResolvedValue(undefined);
-
-    // Default: flyio client with getVmUrl
-    vi.mocked(createFlyioClient).mockReturnValue({
-      getVmUrl: () => VM_URL,
-      getMachineStatus: vi.fn(),
-      createMachine: vi.fn(),
-      startMachine: vi.fn(),
-    } as ReturnType<typeof createFlyioClient>);
-
-    // Default: supabase client (validateAgent handles the logic)
     vi.mocked(createSupabaseClient).mockReturnValue({} as ReturnType<typeof createSupabaseClient>);
 
-    // Default: VM already running (no pre-warm needed)
-    vi.mocked(getVmStatus).mockResolvedValue('running');
+    mockEnsureMachine.mockResolvedValue({ id: 'mach-123', state: 'started' });
+    mockGetVmUrl.mockReturnValue(VM_URL);
 
-    // Mock global fetch for VM proxy calls
     mockFetch = vi.fn();
     global.fetch = mockFetch;
   });
@@ -102,7 +96,7 @@ describe('POST /execute/:agentId', () => {
     const response = await app.request(
       `/execute/${AGENT_ID}`,
       makeRequest(),
-      mockEnv
+      mockEnv,
     );
 
     expect(response.status).toBe(200);
@@ -115,36 +109,30 @@ describe('POST /execute/:agentId', () => {
   });
 
   it('should return 404 when agent does not exist', async () => {
-    vi.mocked(validateAgent).mockRejectedValue(
-      Object.assign(new Error('Agent not found'), { status: 404 })
-    );
-
-    // Use HTTPException so errorMiddleware maps it correctly
     const { HTTPException } = await import('hono/http-exception');
     vi.mocked(validateAgent).mockRejectedValue(
-      new HTTPException(404, { message: 'Agent not found' })
+      new HTTPException(404, { message: 'Agent not found' }),
     );
 
     const app = buildApp();
     const response = await app.request(
       `/execute/${AGENT_ID}`,
       makeRequest(),
-      mockEnv
+      mockEnv,
     );
 
     expect(response.status).toBe(404);
   });
 
   it('should return 503 when VM fails to become ready', async () => {
-    vi.mocked(getVmStatus).mockResolvedValue('stopped');
-    vi.mocked(startMachine).mockResolvedValue(undefined);
-    vi.mocked(waitForVmReady).mockResolvedValue(false); // never becomes ready
+    mockEnsureMachine.mockResolvedValue({ id: 'mach-123', state: 'starting' });
+    vi.mocked(waitForVmReady).mockResolvedValue(false);
 
     const app = buildApp();
     const response = await app.request(
       `/execute/${AGENT_ID}`,
       makeRequest(),
-      mockEnv
+      mockEnv,
     );
 
     expect(response.status).toBe(503);
@@ -154,8 +142,8 @@ describe('POST /execute/:agentId', () => {
     const app = buildApp();
     const response = await app.request(
       `/execute/${AGENT_ID}`,
-      makeRequest({ context: { some: 'data' } }), // prompt intentionally omitted
-      mockEnv
+      makeRequest({ context: { some: 'data' } }),
+      mockEnv,
     );
 
     expect(response.status).toBe(400);
