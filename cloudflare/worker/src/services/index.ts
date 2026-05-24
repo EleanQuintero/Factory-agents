@@ -1,4 +1,4 @@
 export * from './agentService';
-export * from './executeService';
 export * from './logService';
+export * from './proxyService';
 export * from './vmService';

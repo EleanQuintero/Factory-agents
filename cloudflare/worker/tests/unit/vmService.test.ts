@@ -16,19 +16,25 @@ describe('vmService', () => {
     it('should return true when VM responds with 200', async () => {
       mockFetch.mockResolvedValue({ ok: true, status: 200 });
 
-      const result = await waitForVmReady('https://vm-user-001.vm.zenith-factory.fly.dev', sleep);
+      const result = await waitForVmReady('https://zenith-factory.fly.dev', 'mach-123', sleep);
 
       expect(result).toBe(true);
-      expect(sleep).toHaveBeenCalledWith(2000);
+      expect(sleep).toHaveBeenCalledWith(3000);
+      expect(mockFetch).toHaveBeenCalledWith(
+        'https://zenith-factory.fly.dev/health',
+        expect.objectContaining({
+          headers: { 'fly-force-instance-id': 'mach-123' },
+        }),
+      );
     });
 
     it('should return false after timeout', async () => {
       mockFetch.mockResolvedValue({ ok: false, status: 500 });
 
-      const result = await waitForVmReady('https://vm-user-001.vm.zenith-factory.fly.dev', sleep);
+      const result = await waitForVmReady('https://zenith-factory.fly.dev', 'mach-123', sleep);
 
       expect(result).toBe(false);
-      expect(sleep.mock.calls.length).toBe(7); // 1 grace + 6 polls
+      expect(sleep.mock.calls.length).toBe(21); // 1 grace + 20 polls
     });
 
     it('should poll multiple times until VM is ready', async () => {
@@ -41,7 +47,7 @@ describe('vmService', () => {
         return Promise.resolve({ ok: true, status: 200 });
       });
 
-      const result = await waitForVmReady('https://vm-user-001.vm.zenith-factory.fly.dev', sleep);
+      const result = await waitForVmReady('https://zenith-factory.fly.dev', 'mach-123', sleep);
 
       expect(result).toBe(true);
       expect(callCount).toBe(3);

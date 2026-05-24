@@ -7,7 +7,7 @@ describe('healthController', () => {
       status: 'ready',
       agentId: '123e4567-e89b-12d3-a456-426614174000',
       vmStatus: 'running',
-      vmUrl: 'https://vm-123e4567-e89b-12d3-a456-426614174000.vm.zenith-factory.fly.dev',
+      vmUrl: 'https://zenith-factory.fly.dev',
       timestamp: new Date().toISOString(),
     };
 
@@ -15,7 +15,7 @@ describe('healthController', () => {
       status: 'ready',
       agentId: '123e4567-e89b-12d3-a456-426614174000',
       vmStatus: 'running',
-      vmUrl: 'https://vm-123e4567-e89b-12d3-a456-426614174000.vm.zenith-factory.fly.dev',
+      vmUrl: 'https://zenith-factory.fly.dev',
       timestamp: expect.any(String),
     });
   });

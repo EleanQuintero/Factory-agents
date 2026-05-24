@@ -255,9 +255,9 @@ describe('FlyMachinesClient', () => {
   });
 
   describe('getVmUrl', () => {
-    it('should build correct subdomain URL', () => {
-      const url = client.getVmUrl('user-001');
-      expect(url).toBe('https://vm-user-001.vm.zenith-factory.fly.dev');
+    it('should return app-level domain URL', () => {
+      const url = client.getVmUrl();
+      expect(url).toBe('https://zenith-factory.fly.dev');
     });
   });
 

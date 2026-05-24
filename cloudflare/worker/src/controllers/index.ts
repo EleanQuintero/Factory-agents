@@ -1,2 +1,2 @@
-export * from './executeController';
 export * from './healthController';
+export * from './vmProxyController';

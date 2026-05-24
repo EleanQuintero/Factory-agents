@@ -1,7 +1,6 @@
 import { HTTPException } from 'hono/http-exception';
 import type { Context, Next } from 'hono';
 import type { Env, ErrorResponse } from '../models/types';
-import { RetryExhaustedError } from '../services/executeService';
 
 /**
  * Error handling middleware
