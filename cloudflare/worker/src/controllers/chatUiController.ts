@@ -95,10 +95,10 @@ async function init(){
     setStatus('Creating agent...', false);
 
     const swarmConfig={
-      id:'ai-ideas-researcher',
+      id:AGENT_ID,
       name:'AI Ideas Research Agent',
       orchestrator:{
-        id:'orchestrator',
+        id:AGENT_ID,
         name:'Research Orchestrator',
         model:'anthropic/claude-sonnet-4-6',
         instructions:'Sos un orquestador que coordina busqueda web y envio de emails. Cuando te pidan investigar ideas de agentes de IA, usa el worker de busqueda web para encontrar informacion actualizada sobre tendencias 2026, analiza los resultados, y despues usa el worker de email para enviar un resumen profesional al destinatario indicado. Responde siempre en español.',
